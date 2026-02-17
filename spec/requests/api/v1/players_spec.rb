@@ -47,7 +47,7 @@ RSpec.describe "Api::V1::Players", type: :request do
       it "returns a paginated list on page 1" do
         get "/api/v1/players", params: { page: 1 }
         json = JSON.parse(response.body)
-        
+
         expect(json['players'].size).to eq(25) # Default kaminari
         expect(json['meta']['total_count']).to eq(30)
       end
@@ -55,7 +55,7 @@ RSpec.describe "Api::V1::Players", type: :request do
       it "returns the remaining players on page 2" do
         get "/api/v1/players", params: { page: 2 }
         json = JSON.parse(response.body)
-        
+
         expect(json['players'].size).to eq(5)
       end
     end
