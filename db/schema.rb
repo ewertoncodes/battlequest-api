@@ -10,8 +10,29 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 0) do
+ActiveRecord::Schema[8.0].define(version: 2026_02_17_014210) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
+  create_table "game_events", force: :cascade do |t|
+    t.string "category"
+    t.string "event_type"
+    t.datetime "occurred_at"
+    t.jsonb "metadata"
+    t.bigint "player_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_type"], name: "index_game_events_on_event_type"
+    t.index ["player_id"], name: "index_game_events_on_player_id"
+  end
+
+  create_table "players", force: :cascade do |t|
+    t.string "external_id"
+    t.string "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["external_id"], name: "index_players_on_external_id"
+  end
+
+  add_foreign_key "game_events", "players"
 end
