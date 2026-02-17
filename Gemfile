@@ -53,3 +53,7 @@ group :development, :test do
   gem "rswag-ui"
   gem "rswag-specs"
 end
+
+group :test do
+  gem 'database_cleaner-active_record'
+end

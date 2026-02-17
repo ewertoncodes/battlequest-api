@@ -1,9 +1,10 @@
 class PlayerSerializer < Blueprinter::Base
-  identifier :external_id
+  identifier :id
 
-  fields :name
-
-  field :total_xp do |player|
-    player.total_xp.to_i
+  fields :name, :external_id
+  view :leaderboard do
+    field :total_xp do |player|
+      player.total_xp.to_i
+    end
   end
 end

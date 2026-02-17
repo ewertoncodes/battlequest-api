@@ -6,7 +6,7 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1 do
-      resources :players, only: [] do
+      resources :players, only: [:index] do
         collection do
           get :leaderboard
         end
