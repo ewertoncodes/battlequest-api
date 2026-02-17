@@ -1,6 +1,6 @@
 FactoryBot.define do
   factory :player do
-    external_id { "MyString" }
-    name { "MyString" }
+    sequence(:external_id) { |n| "player_#{n}" }
+    sequence(:name) { |n| "Player #{n}" } 
   end
 end
