@@ -3,9 +3,9 @@ module Api
     class PlayersController < ApplicationController
       def leaderboard
         query = Player.joins(:game_events)
-                      .select('players.id, players.name, players.external_id, SUM(game_events.value) as total_xp')
-                      .group('players.id, players.name, players.external_id')
-                      .order('total_xp DESC')
+                      .select("players.id, players.name, players.external_id, SUM(game_events.value) as total_xp")
+                      .group("players.id, players.name, players.external_id")
+                      .order("total_xp DESC")
 
         @players = query.page(params[:page])
 
