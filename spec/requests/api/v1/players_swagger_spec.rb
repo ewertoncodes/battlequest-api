@@ -42,4 +42,32 @@ RSpec.describe "Api::V1::Players", type: :request do
       end
     end
   end
+
+  path "/api/v1/players" do
+    get "List all players" do
+      tags "Players"
+      description "Returns a paginated list of all players with basic information."
+      produces "application/json"
+      parameter name: :page, in: :query, type: :integer, required: false, description: "Page number"
+
+      response "200", "Success" do
+        schema type: :object,
+               properties: {
+                 players: {
+                   type: :array,
+                   items: {
+                     type: :object,
+                     properties: {
+                       id: { type: :integer },
+                       name: { type: :string },
+                       external_id: { type: :string }
+                     }
+                   }
+                 },
+                 meta: { "$ref" => "#/components/schemas/pagination_meta" }
+               }
+        run_test!
+      end
+    end
+  end
 end
