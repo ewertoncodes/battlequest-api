@@ -11,6 +11,8 @@ Follow the commands below in order to set up the environment with real data:
 # 1. Clone the repository
 git clone https://github.com/ewertoncodes/battlequest-api
 cd battlequest-api
+cp .env.example .env
+
 
 # 2. Start the containers
 docker compose up -d --build
