@@ -29,6 +29,12 @@ module Api
         render json: { error: "Player not found" }, status: :not_found
       end
 
+      def show
+        player = Player.find(params[:id])
+        render json: PlayerSerializer.render(player)
+      rescue ActiveRecord::RecordNotFound
+        render json: { error: "Player not found" }, status: :not_found
+      end
 
       private
 

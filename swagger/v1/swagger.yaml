@@ -160,11 +160,46 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/error_response"
+  "/api/v1/players/{id}":
+    get:
+      summary: Retrieves a specific player
+      tags:
+      - Players
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: player found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/player"
+        '404':
+          description: player not found
 servers:
 - url: http://localhost:3000
   description: Local Development Server
 components:
   schemas:
+    player:
+      type: object
+      properties:
+        id:
+          type: integer
+        external_id:
+          type: string
+        name:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - name
     pagination_meta:
       type: object
       properties:

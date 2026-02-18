@@ -72,6 +72,41 @@ RSpec.describe "Api::V1::Players", type: :request do
     end
   end
 
+  describe "GET /api/v1/players/:id" do
+    let!(:player) { create(:player, name: "Arthur", external_id: "p1") }
+
+    context "when the player exists" do
+      it "returns http success" do
+        get "/api/v1/players/#{player.id}"
+        expect(response).to have_http_status(:ok)
+      end
+
+      it "returns the correct player data" do
+        get "/api/v1/players/#{player.id}"
+        json = JSON.parse(response.body)
+
+        expect(json['id']).to eq(player.id)
+        expect(json['name']).to eq("Arthur")
+        expect(json['external_id']).to eq("p1")
+      end
+    end
+
+    context "when the player does not exist" do
+      it "returns http not found" do
+        get "/api/v1/players/999999"
+        expect(response).to have_http_status(:not_found)
+      end
+
+      it "returns an error message" do
+        get "/api/v1/players/999999"
+        json = JSON.parse(response.body)
+
+        expect(json['error']).to eq("Player not found")
+      end
+    end
+  end
+
+
   describe "GET /api/v1/players/:id/stats" do
     let!(:player) { create(:player, name: "Arthur Morgan") }
 

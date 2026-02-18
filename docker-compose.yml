@@ -14,7 +14,7 @@ services:
   web:
     build: .
     # For development this runs migrations then starts the Rails server bound to 0.0.0.0
-    command: bash -lc "bin/rails db:create db:migrate && bin/rails server -b 0.0.0.0"
+    command: bash -lc "bin/rails db:prepare && bin/rails server -b 0.0.0.0"
     env_file:
       - .env
     environment:

@@ -94,4 +94,23 @@ RSpec.describe "Api::V1::Players", type: :request do
       end
     end
   end
+
+  path '/api/v1/players/{id}' do
+    get 'Retrieves a specific player' do
+      tags 'Players'
+      produces 'application/json'
+      parameter name: :id, in: :path, type: :integer
+
+      response '200', 'player found' do
+        schema '$ref' => '#/components/schemas/player'
+        let(:id) { create(:player).id }
+        run_test!
+      end
+
+      response '404', 'player not found' do
+        let(:id) { 999 }
+        run_test!
+      end
+    end
+end
 end

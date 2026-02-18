@@ -22,6 +22,16 @@ RSpec.configure do |config|
       ],
       components: {
         schemas: {
+          player: {
+            type: :object,
+            properties: {
+              id: { type: :integer },
+              external_id: { type: :string },
+              name: { type: :string },
+              created_at: { type: :string, format: 'date-time' }
+            },
+            required: %w[id name]
+          },
           pagination_meta: {
             type: :object,
             properties: {
