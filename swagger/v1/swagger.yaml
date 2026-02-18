@@ -41,6 +41,25 @@ paths:
                       type: object
                     player:
                       "$ref": "#/components/schemas/player"
+  "/api/v1/items/top":
+    get:
+      summary: Rank of most collected items
+      tags:
+      - Items
+      responses:
+        '200':
+          description: top items retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    item:
+                      type: string
+                    total:
+                      type: integer
   "/api/v1/players/leaderboard":
     get:
       summary: Retrieve players ranking based on total XP
