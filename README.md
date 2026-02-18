@@ -13,7 +13,6 @@ git clone https://github.com/ewertoncodes/battlequest-api
 cd battlequest-api
 cp .env.example .env
 
-
 # 2. Start the containers
 docker compose up -d --build
 
@@ -25,7 +24,15 @@ docker compose exec web bundle exec rake logs:import
 
 # 5. Generate API key
 docker compose exec web bundle exec rake api:generate_key
+
+# 6. Start the file watcher (optional)
+docker compose exec web bin/watch
+
+# 7. In another terminal tab add a new event to the log
+docker compose exec web sh -c "echo '2026-02-18 15:30:00 [CHAT] MESSAGE player_id=p99 message=\"Testing the watcher\"' >> game_log_large.txt"
 ```
+
+
 
 **⚠️ Important:** Save the token generated in step 5. You'll need it to unlock endpoints in Swagger.
 
@@ -55,3 +62,4 @@ docker compose exec web bundle exec rspec
 1. Click **Authorize** button at the top of Swagger UI
 2. Paste your API Key
 3. Execute `/api/v1/dashboard` to see consolidated metrics
+
