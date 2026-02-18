@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_02_17_023009) do
+ActiveRecord::Schema[8.0].define(version: 2026_02_18_033232) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -18,12 +18,13 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_17_023009) do
     t.string "category"
     t.string "event_type"
     t.datetime "occurred_at"
-    t.jsonb "metadata"
+    t.jsonb "metadata", default: {}, null: false
     t.bigint "player_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "value"
     t.index ["event_type"], name: "index_game_events_on_event_type"
+    t.index ["metadata"], name: "index_game_events_on_metadata", using: :gin
     t.index ["player_id"], name: "index_game_events_on_player_id"
   end
 
