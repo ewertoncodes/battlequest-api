@@ -5,6 +5,70 @@ info:
   version: v1
   description: Documentation for the Game Log Processing and Player Statistics API
 paths:
+  "/api/v1/dashboard":
+    get:
+      summary: display analytics dashboard
+      tags:
+      - Dashboard
+      description: Returns consolidated game metrics, including active players, total
+        score, and rankings.
+      responses:
+        '200':
+          description: Dashboard loaded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  active_players:
+                    type: integer
+                    description: Total number of unique players with recorded events
+                    example: 42
+                  total_score:
+                    type: integer
+                    description: Sum of all accumulated XP/Gold values
+                    example: 15400
+                  top_items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        label:
+                          type: string
+                          example: Health Potion
+                        total:
+                          type: integer
+                          example: 150
+                  top_deaths:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        label:
+                          type: string
+                          description: ID of the player who died
+                          example: p123
+                        total:
+                          type: integer
+                          example: 5
+                  bosses_defeated:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        label:
+                          type: string
+                          description: Name of the defeated boss
+                          example: Dragon Lord
+                        total:
+                          type: integer
+                          example: 12
+                required:
+                - active_players
+                - total_score
+                - top_items
+                - top_deaths
+                - bosses_defeated
   "/api/v1/events":
     get:
       summary: Retrieves game events
