@@ -1,30 +1,54 @@
 class DashboardQuery
-  ALLOWED_DASHBOARD_KEYS = %w[item_name quest_id boss_name item victim_id].freeze
-
   def initialize(relation = GameEvent.all)
     @relation = relation
   end
 
   def call
+    result = ActiveRecord::Base.connection.execute(dashboard_sql).first
+
     {
-      active_players: Player.joins(:game_events).merge(@relation).distinct.count,
-      total_score: @relation.sum(:value),
-      top_items: top_metadata_rank("ITEM_PICKUP", "item"),
-      top_deaths: top_metadata_rank("PLAYER_DEATH", "victim_id"),
-      bosses_defeated: top_metadata_rank("BOSS_DEFEAT", "boss_name")
+      active_players: result["active_players"].to_i,
+      total_score:    result["total_score"].to_i,
+      top_items:      parse_json(result["top_items"]),
+      top_deaths:     parse_json(result["top_deaths"]),
+      bosses_defeated: parse_json(result["bosses_defeated"])
     }
   end
 
   private
 
-  def top_metadata_rank(event_type, metadata_key)
-    return [] unless ALLOWED_DASHBOARD_KEYS.include?(metadata_key.to_s)
+  def parse_json(value)
+    JSON.parse(value || "[]")
+  end
 
-    @relation.where(event_type: event_type)
-              .group(Arel.sql("metadata->>'#{metadata_key}'"))
-             .order(Arel.sql("count_all DESC"))
-             .limit(5)
-             .count
-             .map { |label, total| { label: label, total: total } }
+  def dashboard_sql
+    <<-SQL
+      SELECT#{' '}
+        COUNT(DISTINCT player_id) AS active_players,
+        COALESCE(SUM(value), 0) AS total_score,
+      #{'  '}
+        -- Top Items
+        (SELECT json_agg(t) FROM (
+          SELECT metadata->>'item' AS label, COUNT(*) AS total#{' '}
+          FROM game_events WHERE event_type = 'ITEM_PICKUP'#{' '}
+          GROUP BY 1 ORDER BY 2 DESC LIMIT 5
+        ) t) AS top_items,
+
+        -- Top Deaths
+        (SELECT json_agg(d) FROM (
+          SELECT metadata->>'victim_id' AS label, COUNT(*) AS total#{' '}
+          FROM game_events WHERE event_type = 'PLAYER_DEATH'#{' '}
+          GROUP BY 1 ORDER BY 2 DESC LIMIT 5
+        ) d) AS top_deaths,
+
+        -- Bosses Defeated
+        (SELECT json_agg(b) FROM (
+          SELECT metadata->>'boss_name' AS label, COUNT(*) AS total#{' '}
+          FROM game_events WHERE event_type = 'BOSS_DEFEAT'#{' '}
+          GROUP BY 1 ORDER BY 2 DESC LIMIT 5
+        ) b) AS bosses_defeated
+      #{'  '}
+      FROM game_events;
+    SQL
   end
 end
