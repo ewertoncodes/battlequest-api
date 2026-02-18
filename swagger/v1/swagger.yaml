@@ -1,15 +1,16 @@
 ---
 openapi: 3.0.1
 info:
-  title: BattleQuest Game API
+  title: Battlequest API V1
   version: v1
-  description: Documentation for the Game Log Processing and Player Statistics API
 paths:
   "/api/v1/dashboard":
     get:
       summary: display analytics dashboard
       tags:
       - Dashboard
+      security:
+      - api_key: []
       description: Returns consolidated game metrics, including active players, total
         score, and rankings.
       responses:
@@ -74,6 +75,8 @@ paths:
       summary: Retrieves game events
       tags:
       - Events
+      security:
+      - api_key: []
       parameters:
       - name: limit
         in: query
@@ -110,6 +113,8 @@ paths:
       summary: Rank of most collected items
       tags:
       - Items
+      security:
+      - api_key: []
       responses:
         '200':
           description: top items retrieved
@@ -129,6 +134,8 @@ paths:
       summary: Retrieve players ranking based on total XP
       tags:
       - Leaderboard
+      security:
+      - api_key: []
       description: Returns a paginated list of players ordered by their accumulated
         XP from game events.
       parameters:
@@ -180,6 +187,8 @@ paths:
       summary: List all players
       tags:
       - Players
+      security:
+      - api_key: []
       description: Returns a paginated list of all players with basic information.
       parameters:
       - name: page
@@ -214,6 +223,8 @@ paths:
       summary: Retrieve player statistics
       tags:
       - Players
+      security:
+      - api_key: []
       parameters:
       - name: id
         in: path
@@ -248,6 +259,8 @@ paths:
       summary: Retrieves a specific player
       tags:
       - Players
+      security:
+      - api_key: []
       parameters:
       - name: id
         in: path
@@ -309,3 +322,10 @@ components:
         error:
           type: string
           example: Resource not found
+  securitySchemes:
+    api_key:
+      type: apiKey
+      name: X-Api-Key
+      in: header
+security:
+- api_key: []

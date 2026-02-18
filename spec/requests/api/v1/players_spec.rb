@@ -1,6 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe "Api::V1::Players", type: :request do
+  include_context "with authenticated user"
   describe "GET /api/v1/players/leaderboard" do
     context "when players have earned XP" do
       let!(:player_one) { create(:player, name: "Player One") }
@@ -13,7 +14,7 @@ RSpec.describe "Api::V1::Players", type: :request do
       end
 
       it "returns leaderboard ordered by total_xp descending" do
-        get "/api/v1/players/leaderboard"
+        get "/api/v1/players/leaderboard", headers: auth_headers
         json = JSON.parse(response.body)
 
         expect(json["players"].first["name"]).to eq("Player Two")
@@ -22,7 +23,7 @@ RSpec.describe "Api::V1::Players", type: :request do
       end
 
       it "includes correct pagination metadata" do
-        get "/api/v1/players/leaderboard"
+        get "/api/v1/players/leaderboard", headers: auth_headers
         json = JSON.parse(response.body)
 
         expect(json["meta"]["total_count"]).to eq(2)
@@ -31,7 +32,7 @@ RSpec.describe "Api::V1::Players", type: :request do
 
     context "when no players have earned XP yet" do
       it "returns an empty players list" do
-        get "/api/v1/players/leaderboard"
+        get "/api/v1/players/leaderboard", headers: auth_headers
         json = JSON.parse(response.body)
 
         expect(json["players"]).to be_empty
@@ -45,7 +46,7 @@ RSpec.describe "Api::V1::Players", type: :request do
       let!(:players) { create_list(:player, 30) }
 
       it "returns a paginated list on page 1" do
-        get "/api/v1/players", params: { page: 1 }
+        get "/api/v1/players", params: { page: 1 }, headers: auth_headers
         json = JSON.parse(response.body)
 
         expect(json['players'].size).to eq(25) # Default kaminari
@@ -53,7 +54,7 @@ RSpec.describe "Api::V1::Players", type: :request do
       end
 
       it "returns the remaining players on page 2" do
-        get "/api/v1/players", params: { page: 2 }
+        get "/api/v1/players", params: { page: 2 }, headers: auth_headers
         json = JSON.parse(response.body)
 
         expect(json['players'].size).to eq(5)
@@ -62,7 +63,7 @@ RSpec.describe "Api::V1::Players", type: :request do
 
     context "when there are no players registered" do
       it "returns an empty array and success status" do
-        get "/api/v1/players"
+        get "/api/v1/players", headers: auth_headers
         json = JSON.parse(response.body)
 
         expect(response).to have_http_status(:ok)
@@ -77,12 +78,12 @@ RSpec.describe "Api::V1::Players", type: :request do
 
     context "when the player exists" do
       it "returns http success" do
-        get "/api/v1/players/#{player.id}"
+        get "/api/v1/players/#{player.id}", headers: auth_headers
         expect(response).to have_http_status(:ok)
       end
 
       it "returns the correct player data" do
-        get "/api/v1/players/#{player.id}"
+        get "/api/v1/players/#{player.id}", headers: auth_headers
         json = JSON.parse(response.body)
 
         expect(json['id']).to eq(player.id)
@@ -93,12 +94,12 @@ RSpec.describe "Api::V1::Players", type: :request do
 
     context "when the player does not exist" do
       it "returns http not found" do
-        get "/api/v1/players/999999"
+        get "/api/v1/players/999999", headers: auth_headers
         expect(response).to have_http_status(:not_found)
       end
 
       it "returns an error message" do
-        get "/api/v1/players/999999"
+        get "/api/v1/players/999999", headers: auth_headers
         json = JSON.parse(response.body)
 
         expect(json['error']).to eq("Player not found")
@@ -119,7 +120,7 @@ RSpec.describe "Api::V1::Players", type: :request do
       end
 
       it "returns correct accumulated statistics" do
-        get "/api/v1/players/#{player.id}/stats"
+        get "/api/v1/players/#{player.id}/stats", headers: auth_headers
 
         expect(response).to have_http_status(:ok)
         json = JSON.parse(response.body)
@@ -133,8 +134,15 @@ RSpec.describe "Api::V1::Players", type: :request do
 
     context "when player does not exist" do
       it "returns 404 status" do
-        get "/api/v1/players/0/stats"
+        get "/api/v1/players/0/stats", headers: auth_headers
         expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    context 'when not authenticated' do
+      it 'responds with unauthorized status' do
+        get "/api/v1/players/#{player.id}/stats"
+        expect(response).to have_http_status(:unauthorized)
       end
     end
   end

@@ -4,12 +4,16 @@ RSpec.describe 'api/v1/events', type: :request do
   path '/api/v1/events' do
     get 'Retrieves game events' do
       tags 'Events'
+      security [ api_key: [] ]
       produces 'application/json'
       parameter name: :limit, in: :query, type: :integer, description: 'Number of events'
 
       let(:limit) { 10 }
 
       response '200', 'events found' do
+        include_context "with authenticated user"
+        let(:'X-Api-Key') { authenticated_api_key.token }
+
         schema type: :array,
                items: {
                  type: :object,

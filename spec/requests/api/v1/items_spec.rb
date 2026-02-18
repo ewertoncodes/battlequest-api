@@ -1,6 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe "Api::V1::Items", type: :request do
+  include_context "with authenticated user"
   describe "GET /api/v1/items/top" do
     context "when items exist" do
       let!(:player) { create(:player) }
@@ -12,12 +13,12 @@ RSpec.describe "Api::V1::Items", type: :request do
       end
 
       it "returns http success" do
-        get "/api/v1/items/top"
+        get "/api/v1/items/top", headers: auth_headers
         expect(response).to have_http_status(:ok)
       end
 
       it "returns the top items ranked by frequency" do
-        get "/api/v1/items/top"
+        get "/api/v1/items/top", headers: auth_headers
         json = JSON.parse(response.body)
 
         expect(json.size).to eq(3)
@@ -29,9 +30,16 @@ RSpec.describe "Api::V1::Items", type: :request do
 
     context "when no items are found" do
       it "returns an empty array" do
-        get "/api/v1/items/top"
+        get "/api/v1/items/top", headers: auth_headers
         json = JSON.parse(response.body)
         expect(json).to be_empty
+      end
+    end
+
+    context "when not authenticated" do
+      it "returns http unauthorized" do
+        get "/api/v1/items/top"
+        expect(response).to have_http_status(:unauthorized)
       end
     end
   end

@@ -4,10 +4,13 @@ RSpec.describe 'api/v1/dashboard', type: :request do
   path '/api/v1/dashboard' do
     get('display analytics dashboard') do
       tags 'Dashboard'
+      security [ api_key: [] ]
       description 'Returns consolidated game metrics, including active players, total score, and rankings.'
       produces 'application/json'
 
       response(200, 'Dashboard loaded successfully') do
+        include_context "with authenticated user"
+        let(:'X-Api-Key') { authenticated_api_key.token }
         schema type: :object,
                properties: {
                  active_players: { type: :integer, description: 'Total number of unique players with recorded events', example: 42 },

@@ -3,15 +3,14 @@
 require 'rails_helper'
 
 RSpec.configure do |config|
-  config.openapi_root = Rails.root.join('swagger').to_s
+  config.swagger_root = Rails.root.join('swagger').to_s
 
-  config.openapi_specs = {
+  config.swagger_docs = {
     'v1/swagger.yaml' => {
       openapi: '3.0.1',
       info: {
-        title: 'BattleQuest Game API',
-        version: 'v1',
-        description: 'Documentation for the Game Log Processing and Player Statistics API'
+        title: 'Battlequest API V1',
+        version: 'v1'
       },
       paths: {},
       servers: [
@@ -48,8 +47,16 @@ RSpec.configure do |config|
               error: { type: :string, example: 'Resource not found' }
             }
           }
+        },
+        securitySchemes: {
+          api_key: {
+            type: :apiKey,
+            name: 'X-Api-Key',
+            in: :header
+          }
         }
-      }
+      },
+      security: [ { api_key: [] } ]
     }
   }
 
