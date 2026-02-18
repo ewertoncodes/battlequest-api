@@ -1,4 +1,6 @@
 class DashboardQuery
+  ALLOWED_DASHBOARD_KEYS = %w[item_name quest_id boss_name item victim_id].freeze
+
   def initialize(relation = GameEvent.all)
     @relation = relation
   end
@@ -16,9 +18,11 @@ class DashboardQuery
   private
 
   def top_metadata_rank(event_type, metadata_key)
+    return [] unless ALLOWED_DASHBOARD_KEYS.include?(metadata_key.to_s)
+
     @relation.where(event_type: event_type)
-             .group("metadata->>'#{metadata_key}'")
-             .order("count_all DESC")
+              .group(Arel.sql("metadata->>'#{metadata_key}'"))
+             .order(Arel.sql("count_all DESC"))
              .limit(5)
              .count
              .map { |label, total| { label: label, total: total } }
