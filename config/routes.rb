@@ -13,6 +13,7 @@ Rails.application.routes.draw do
           get :leaderboard
         end
       end
+      resources :events, only: [ :index ]
     end
   end
 end

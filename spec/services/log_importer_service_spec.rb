@@ -17,7 +17,7 @@ RSpec.describe LogImporterService do
   it "imports events in bulk successfully" do
     expect { subject.call }.to change(Player, :count).by(1)
       .and change(GameEvent, :count).by(1)
-    
+
     event = GameEvent.last
     expect(event.value).to eq(100)
     expect(event.event_type).to eq('xp_gain')

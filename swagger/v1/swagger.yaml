@@ -5,6 +5,42 @@ info:
   version: v1
   description: Documentation for the Game Log Processing and Player Statistics API
 paths:
+  "/api/v1/events":
+    get:
+      summary: Retrieves game events
+      tags:
+      - Events
+      parameters:
+      - name: limit
+        in: query
+        description: Number of events
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: events found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    event_type:
+                      type: string
+                    category:
+                      type: string
+                    value:
+                      type: integer
+                    occurred_at:
+                      type: string
+                      format: date-time
+                    metadata:
+                      type: object
+                    player:
+                      "$ref": "#/components/schemas/player"
   "/api/v1/players/leaderboard":
     get:
       summary: Retrieve players ranking based on total XP

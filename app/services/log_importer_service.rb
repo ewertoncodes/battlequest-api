@@ -15,7 +15,7 @@ class LogImporterService
       process_line(line)
       import_batch if (index % BATCH_SIZE).zero?
     end
-    
+
     import_batch
   end
 
