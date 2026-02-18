@@ -34,7 +34,7 @@ class LogImporterService
       player_id: player_id,
       event_type: parsed[:event_type],
       category: parsed[:category],
-      metadata: parsed[:metadata].to_json,
+      metadata: parsed[:metadata],
       value: (parsed[:metadata][:xp] || parsed[:metadata][:gold] || 0).to_i,
       occurred_at: parsed[:timestamp],
       created_at: Time.current,

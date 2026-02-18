@@ -14,6 +14,7 @@ Rails.application.routes.draw do
         end
       end
       resources :events, only: [ :index ]
+      get "items/top", to: "items#top"
     end
   end
 end
