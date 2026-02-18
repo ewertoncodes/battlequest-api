@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_02_18_042732) do
+ActiveRecord::Schema[8.0].define(version: 2026_02_18_165342) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -33,6 +33,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_18_042732) do
     t.integer "value"
     t.index ["event_type"], name: "index_game_events_on_event_type"
     t.index ["metadata"], name: "index_game_events_on_metadata", using: :gin
+    t.index ["occurred_at", "event_type", "player_id", "value"], name: "idx_unique_game_events", unique: true
     t.index ["player_id"], name: "index_game_events_on_player_id"
   end
 

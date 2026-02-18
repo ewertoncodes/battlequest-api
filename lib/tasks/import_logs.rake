@@ -8,13 +8,14 @@ namespace :logs do
       next
     end
 
-    puts "⏳ Iniciando importação..."
+    start_time = Time.current
+    puts "⏳ Iniciando importação de #{file_path}..."
 
-    Importer = LogImporterService.new(file_path)
-    Importer.call
+    LogImporterService.new(file_path).call
 
-    puts "✅ Importação concluída!"
-    puts "📊 Jogadores: #{Player.count}"
-    puts "📊 Eventos: #{GameEvent.count}"
+    duration = Time.current - start_time
+    puts "✅ Importação concluída em #{duration.round(2)}s!"
+    puts "📊 Total de Jogadores: #{Player.count}"
+    puts "📊 Total de Eventos:   #{GameEvent.count}"
   end
 end

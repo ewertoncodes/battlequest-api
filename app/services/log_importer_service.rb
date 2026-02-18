@@ -1,58 +1,55 @@
 class LogImporterService
-  PLAYER_KEYS = %i[player_id defeated_by id victim_id killer_id].freeze
   BATCH_SIZE = 1000
 
   def initialize(file_path)
     @file_path = file_path
     @players_cache = Player.pluck(:external_id, :id).to_h
-    @events_to_import = []
+    last_event = GameEvent.maximum(:occurred_at)
+    @cutoff_time = last_event ? (last_event - 1.day) : Time.at(0)
   end
 
   def call
     return unless File.exist?(@file_path)
 
-    File.foreach(@file_path).with_index do |line, index|
-      process_line(line)
-      import_batch if (index % BATCH_SIZE).zero?
-    end
-
-    import_batch
+    File.foreach(@file_path).lazy
+        .map { |line| parse_and_prepare(line) }
+        .compact
+        .reject { |event| event[:occurred_at] <= @cutoff_time }
+        .each_slice(BATCH_SIZE) do |batch|
+          GameEvent.insert_all(batch, unique_by: :idx_unique_game_events)
+        end
   end
 
   private
 
-  def process_line(line)
+  def parse_and_prepare(line)
     parsed = LogParserService.parse(line)
-    return unless parsed
+    return nil unless parsed
 
-    external_id = PLAYER_KEYS.map { |key| parsed[:metadata][key] }.compact.first
-    return unless external_id
+    ext_id = extract_external_id(parsed[:metadata])
+    return nil unless ext_id
 
-    player_id = @players_cache[external_id.to_s] || create_player(external_id, parsed[:metadata])
+    player_id = @players_cache[ext_id.to_s] ||= find_or_create_player_id(ext_id, parsed[:metadata])
 
-    @events_to_import << {
-      player_id: player_id,
-      event_type: parsed[:event_type],
-      category: parsed[:category],
-      metadata: parsed[:metadata],
-      value: (parsed[:metadata][:xp] || parsed[:metadata][:gold] || 0).to_i,
+    {
+      player_id:   player_id,
+      event_type:  parsed[:event_type],
+      category:    parsed[:category],
+      metadata:    parsed[:metadata],
+      value:       (parsed[:metadata][:xp] || parsed[:metadata][:gold] || 0).to_i,
       occurred_at: parsed[:timestamp],
-      created_at: Time.current,
-      updated_at: Time.current
+      created_at:  Time.current,
+      updated_at:  Time.current
     }
   end
 
-  def create_player(external_id, metadata)
-    player = Player.find_or_create_by!(external_id: external_id) do |p|
-      p.name = metadata[:name] || "Player #{external_id}"
-    end
-    @players_cache[external_id.to_s] = player.id
-    player.id
+  def extract_external_id(metadata)
+    metadata.values_at(:player_id, :defeated_by, :id, :victim_id, :killer_id).compact.first
   end
 
-  def import_batch
-    return if @events_to_import.empty?
-    GameEvent.insert_all(@events_to_import)
-    @events_to_import = []
+  def find_or_create_player_id(ext_id, metadata)
+    Player.find_or_create_by!(external_id: ext_id.to_s) do |p|
+      p.name = metadata[:name] || "Player #{ext_id}"
+    end.id
   end
 end
