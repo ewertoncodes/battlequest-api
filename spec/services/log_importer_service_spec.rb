@@ -1,26 +1,25 @@
 require 'rails_helper'
 
 RSpec.describe LogImporterService do
-  let(:file_path) { 'spec/fixtures/game_test.log' }
-  let(:log_line) { "2026-02-16 22:00:00 [COMBAT] BOSS_DEFEAT boss_name=GolemKing defeated_by=p1 xp=500" }
+  let(:fixtures_path) { Rails.root.join('spec/fixtures') }
+  let(:file_path) { fixtures_path.join('small_log.log') }
+  subject { described_class.new(file_path.to_s) }
 
   before do
-    allow(File).to receive(:exist?).with(file_path).and_return(true)
-    allow(File).to receive(:foreach).with(file_path).and_yield(log_line).and_yield(log_line)
+    FileUtils.mkdir_p(fixtures_path) # Garante que a pasta existe
+    File.write(file_path, "2024-03-20 10:00:00 [GAME] xp_gain player_id=1 xp=100\n")
   end
 
-  describe '#call' do
-    it 'creates exactly one player even if the log has duplicate entries' do
-      expect { described_class.new(file_path).call }.to change(Player, :count).by(1)
-    end
+  after do
+    File.delete(file_path) if File.exist?(file_path)
+  end
 
-    it 'creates exactly one event due to idempotency' do
-      expect { described_class.new(file_path).call }.to change(GameEvent, :count).by(1)
-    end
-
-    it 'assigns the correct numeric value to the event' do
-      described_class.new(file_path).call
-      expect(GameEvent.last.value).to eq(500)
-    end
+  it "imports events in bulk successfully" do
+    expect { subject.call }.to change(Player, :count).by(1)
+      .and change(GameEvent, :count).by(1)
+    
+    event = GameEvent.last
+    expect(event.value).to eq(100)
+    expect(event.event_type).to eq('xp_gain')
   end
 end

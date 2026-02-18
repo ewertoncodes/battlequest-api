@@ -12,7 +12,6 @@ module Api
       def leaderboard
         players = Player.select("players.*, SUM(game_events.value) as total_xp")
                         .joins(:game_events)
-                        .where(game_events: { event_type: "xp_gain" })
                         .group("players.id")
                         .order("total_xp DESC")
                         .page(params[:page])
