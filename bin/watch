@@ -1,0 +1,20 @@
+#!/usr/bin/env ruby
+require_relative "../config/environment"
+require "listen"
+
+FILE_PATH = "game_log_large.txt"
+
+FileUtils.touch(FILE_PATH) unless File.exist?(FILE_PATH)
+
+puts "👀 De olho no arquivo: #{FILE_PATH}..."
+
+listener = Listen.to(".", only: /#{FILE_PATH}$/) do
+  puts "📝 Opa, mudou! Importando #{Time.now.strftime('%H:%M:%S')}..."
+  
+  LogImporterService.new(FILE_PATH).call
+  
+  puts "✅ Finalizado."
+end
+
+listener.start
+sleep
