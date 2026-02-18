@@ -22,6 +22,15 @@ module Api
           meta: pagination_meta(players)
         }
       end
+
+      def stats
+        player = Player.find(params[:id])
+        render json: PlayerSerializer.render(player, view: :stats)
+      rescue ActiveRecord::RecordNotFound
+        render json: { error: "Player not found" }, status: :not_found
+      end
+
+
       private
 
       def pagination_meta(collection)

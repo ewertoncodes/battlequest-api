@@ -35,11 +35,6 @@ RSpec.describe "Api::V1::Players", type: :request do
 
         run_test!
       end
-
-      response "401", "Unauthorized" do
-        description "Authentication token is missing or invalid"
-        run_test!
-      end
     end
   end
 
@@ -66,6 +61,35 @@ RSpec.describe "Api::V1::Players", type: :request do
                  },
                  meta: { "$ref" => "#/components/schemas/pagination_meta" }
                }
+        run_test!
+      end
+    end
+  end
+
+  path "/api/v1/players/{id}/stats" do
+    get "Retrieve player statistics" do
+      tags "Players"
+      produces "application/json"
+      parameter name: :id, in: :path, type: :integer, description: "Player ID"
+
+      response "200", "Success" do
+        let(:player) { create(:player) }
+        let(:id) { player.id }
+
+        schema type: :object,
+               properties: {
+                 player_name: { type: :string },
+                 total_xp: { type: :integer },
+                 deaths: { type: :integer },
+                 items_collected: { type: :integer }
+               }
+        run_test!
+      end
+
+      response "404", "Player not found" do
+        let(:id) { 0 }
+
+        schema "$ref" => "#/components/schemas/error_response"
         run_test!
       end
     end

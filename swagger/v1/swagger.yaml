@@ -10,7 +10,8 @@ paths:
       summary: Retrieve players ranking based on total XP
       tags:
       - Leaderboard
-      description: Authentication token is missing or invalid
+      description: Returns a paginated list of players ordered by their accumulated
+        XP from game events.
       parameters:
       - name: page
         in: query
@@ -55,8 +56,6 @@ paths:
                       total_count:
                         type: integer
                         example: 100
-        '401':
-          description: Unauthorized
   "/api/v1/players":
     get:
       summary: List all players
@@ -91,6 +90,40 @@ paths:
                           type: string
                   meta:
                     "$ref": "#/components/schemas/pagination_meta"
+  "/api/v1/players/{id}/stats":
+    get:
+      summary: Retrieve player statistics
+      tags:
+      - Players
+      parameters:
+      - name: id
+        in: path
+        description: Player ID
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  player_name:
+                    type: string
+                  total_xp:
+                    type: integer
+                  deaths:
+                    type: integer
+                  items_collected:
+                    type: integer
+        '404':
+          description: Player not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error_response"
 servers:
 - url: http://localhost:3000
   description: Local Development Server

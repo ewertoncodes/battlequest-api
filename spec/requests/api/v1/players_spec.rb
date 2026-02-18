@@ -71,4 +71,36 @@ RSpec.describe "Api::V1::Players", type: :request do
       end
     end
   end
+
+  describe "GET /api/v1/players/:id/stats" do
+    let!(:player) { create(:player, name: "Arthur Morgan") }
+
+    context "when player exists" do
+      before do
+        create(:game_event, player: player, event_type: 'xp_gain', value: 100)
+        create(:game_event, player: player, event_type: 'xp_gain', value: 50)
+        create_list(:game_event, 3, player: player, event_type: 'death')
+        create(:game_event, player: player, event_type: 'item_pickup')
+      end
+
+      it "returns correct accumulated statistics" do
+        get "/api/v1/players/#{player.id}/stats"
+
+        expect(response).to have_http_status(:ok)
+        json = JSON.parse(response.body)
+
+        expect(json["player_name"]).to eq("Arthur Morgan")
+        expect(json["total_xp"]).to eq(150)
+        expect(json["deaths"]).to eq(3)
+        expect(json["items_collected"]).to eq(1)
+      end
+    end
+
+    context "when player does not exist" do
+      it "returns 404 status" do
+        get "/api/v1/players/0/stats"
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+  end
 end
