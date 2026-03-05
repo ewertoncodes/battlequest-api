@@ -48,7 +48,7 @@ group :development, :test do
   gem "rubocop-rails-omakase", require: false
   gem "rspec-rails", "~> 8.0", ">= 8.0.1"
   gem "factory_bot_rails", "~> 6.0"
-  gem "faker", "~> 2.0"
+  gem "faker", "~> 3.6"
   gem "rswag-api"
   gem "rswag-ui"
   gem "rswag-specs"
